@@ -1,0 +1,466 @@
+{
+    "info":  {
+                 "description":  "Importar y ejecutar en orden. Configurar apiKey localmente con el valor de LAB_API_KEY del servidor. El POST captura id automaticamente para consultas posteriores. No se incluyen claves reales. Puerto verificado en application.properties. Los registros se pierden al reiniciar.",
+                 "name":  "Laboratorio VII - Ejercicio 3 - empleados",
+                 "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+             },
+    "auth":  {
+                 "type":  "noauth"
+             },
+    "variable":  [
+                     {
+                         "key":  "baseUrl",
+                         "type":  "string",
+                         "value":  "http://localhost:8083"
+                     },
+                     {
+                         "key":  "apiKey",
+                         "type":  "string",
+                         "description":  "Asignar localmente el valor de LAB_API_KEY. Sin clave real incluida.",
+                         "value":  ""
+                     },
+                     {
+                         "key":  "id",
+                         "type":  "string",
+                         "description":  "Se captura al crear el registro.",
+                         "value":  ""
+                     }
+                 ],
+    "item":  [
+                 {
+                     "name":  "01 POST crear registro",
+                     "request":  {
+                                     "method":  "POST",
+                                     "header":  [
+                                                    {
+                                                        "key":  "Accept",
+                                                        "type":  "text",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "X-API-KEY",
+                                                        "type":  "text",
+                                                        "value":  "{{apiKey}}"
+                                                    },
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "type":  "text",
+                                                        "value":  "application/json"
+                                                    }
+                                                ],
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              },
+                                     "url":  "{{baseUrl}}/empleados",
+                                     "body":  {
+                                                  "raw":  "{\r\n    \"id\":  null,\r\n    \"nombre\":  \"Ana\",\r\n    \"apellido\":  \"Lopez\",\r\n    \"correo\":  \"ana@example.com\",\r\n    \"especialidad\":  \"Sistemas\",\r\n    \"estado\":  \"ACTIVO\"\r\n}",
+                                                  "options":  {
+                                                                  "raw":  {
+                                                                              "language":  "json"
+                                                                          }
+                                                              },
+                                                  "mode":  "raw"
+                                              }
+                                 },
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"HTTP 201\", function () {     pm.response.to.have.status(201); });",
+                                                                   "if (pm.response.code === 201) {",
+                                                                   "    const registro = pm.response.json();",
+                                                                   "    pm.test(\"ID generado\", function () {",
+                                                                   "        pm.expect(registro.id).to.be.a(\"number\");",
+                                                                   "        pm.expect(registro.id).to.be.above(0);",
+                                                                   "    });",
+                                                                   "    if (typeof registro.id === \"number\" \u0026\u0026 registro.id \u003e 0) {",
+                                                                   "        pm.collectionVariables.set(\"id\", String(registro.id));",
+                                                                   "    }",
+                                                                   "}"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   },
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.collectionVariables.set(\"id\", \"\");"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "prerequest"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "name":  "02 GET consultar todos",
+                     "request":  {
+                                     "method":  "GET",
+                                     "header":  [
+                                                    {
+                                                        "key":  "Accept",
+                                                        "type":  "text",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "X-API-KEY",
+                                                        "type":  "text",
+                                                        "value":  "{{apiKey}}"
+                                                    }
+                                                ],
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              },
+                                     "url":  "{{baseUrl}}/empleados"
+                                 },
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"HTTP 200\", function () {     pm.response.to.have.status(200); });"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "name":  "03 GET filtrar por especialidad",
+                     "request":  {
+                                     "method":  "GET",
+                                     "header":  [
+                                                    {
+                                                        "key":  "Accept",
+                                                        "type":  "text",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "X-API-KEY",
+                                                        "type":  "text",
+                                                        "value":  "{{apiKey}}"
+                                                    }
+                                                ],
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              },
+                                     "url":  "{{baseUrl}}/empleados?especialidad=Sistemas"
+                                 },
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "name":  "04 GET consultar ID existente",
+                     "request":  {
+                                     "method":  "GET",
+                                     "header":  [
+                                                    {
+                                                        "key":  "Accept",
+                                                        "type":  "text",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "X-API-KEY",
+                                                        "type":  "text",
+                                                        "value":  "{{apiKey}}"
+                                                    }
+                                                ],
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              },
+                                     "url":  "{{baseUrl}}/empleados/{{id}}"
+                                 },
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"HTTP 200\", function () {     pm.response.to.have.status(200); });",
+                                                                   "if (pm.response.code === 200) {",
+                                                                   "    pm.test(\"ID consultado coincide con el creado\", function () {",
+                                                                   "        pm.expect(String(pm.response.json().id)).to.eql(String(pm.variables.get(\"id\")));",
+                                                                   "    });",
+                                                                   "}"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "name":  "05 GET consultar ID inexistente",
+                     "request":  {
+                                     "method":  "GET",
+                                     "header":  [
+                                                    {
+                                                        "key":  "Accept",
+                                                        "type":  "text",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "X-API-KEY",
+                                                        "type":  "text",
+                                                        "value":  "{{apiKey}}"
+                                                    }
+                                                ],
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              },
+                                     "url":  "{{baseUrl}}/empleados/-1"
+                                 },
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"HTTP 404\", function () {     pm.response.to.have.status(404); });"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "name":  "06 POST nombre vacio",
+                     "request":  {
+                                     "method":  "POST",
+                                     "header":  [
+                                                    {
+                                                        "key":  "Accept",
+                                                        "type":  "text",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "X-API-KEY",
+                                                        "type":  "text",
+                                                        "value":  "{{apiKey}}"
+                                                    },
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "type":  "text",
+                                                        "value":  "application/json"
+                                                    }
+                                                ],
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              },
+                                     "url":  "{{baseUrl}}/empleados",
+                                     "body":  {
+                                                  "raw":  "{\r\n    \"id\":  null,\r\n    \"nombre\":  \"\",\r\n    \"apellido\":  \"Lopez\",\r\n    \"correo\":  \"ana@example.com\",\r\n    \"especialidad\":  \"Sistemas\",\r\n    \"estado\":  \"ACTIVO\"\r\n}",
+                                                  "options":  {
+                                                                  "raw":  {
+                                                                              "language":  "json"
+                                                                          }
+                                                              },
+                                                  "mode":  "raw"
+                                              }
+                                 },
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"HTTP 400\", function () {     pm.response.to.have.status(400); });"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "name":  "07 POST apellido vacio",
+                     "request":  {
+                                     "method":  "POST",
+                                     "header":  [
+                                                    {
+                                                        "key":  "Accept",
+                                                        "type":  "text",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "X-API-KEY",
+                                                        "type":  "text",
+                                                        "value":  "{{apiKey}}"
+                                                    },
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "type":  "text",
+                                                        "value":  "application/json"
+                                                    }
+                                                ],
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              },
+                                     "url":  "{{baseUrl}}/empleados",
+                                     "body":  {
+                                                  "raw":  "{\r\n    \"id\":  null,\r\n    \"nombre\":  \"Ana\",\r\n    \"apellido\":  \"\",\r\n    \"correo\":  \"ana@example.com\",\r\n    \"especialidad\":  \"Sistemas\",\r\n    \"estado\":  \"ACTIVO\"\r\n}",
+                                                  "options":  {
+                                                                  "raw":  {
+                                                                              "language":  "json"
+                                                                          }
+                                                              },
+                                                  "mode":  "raw"
+                                              }
+                                 },
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"HTTP 400\", function () {     pm.response.to.have.status(400); });"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "name":  "08 POST correo invalido",
+                     "request":  {
+                                     "method":  "POST",
+                                     "header":  [
+                                                    {
+                                                        "key":  "Accept",
+                                                        "type":  "text",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "X-API-KEY",
+                                                        "type":  "text",
+                                                        "value":  "{{apiKey}}"
+                                                    },
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "type":  "text",
+                                                        "value":  "application/json"
+                                                    }
+                                                ],
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              },
+                                     "url":  "{{baseUrl}}/empleados",
+                                     "body":  {
+                                                  "raw":  "{\r\n    \"id\":  null,\r\n    \"nombre\":  \"Ana\",\r\n    \"apellido\":  \"Lopez\",\r\n    \"correo\":  \"correo-invalido\",\r\n    \"especialidad\":  \"Sistemas\",\r\n    \"estado\":  \"ACTIVO\"\r\n}",
+                                                  "options":  {
+                                                                  "raw":  {
+                                                                              "language":  "json"
+                                                                          }
+                                                              },
+                                                  "mode":  "raw"
+                                              }
+                                 },
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"HTTP 400\", function () {     pm.response.to.have.status(400); });"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "name":  "09 GET sin API Key",
+                     "request":  {
+                                     "method":  "GET",
+                                     "header":  [
+                                                    {
+                                                        "key":  "Accept",
+                                                        "type":  "text",
+                                                        "value":  "application/json"
+                                                    }
+                                                ],
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              },
+                                     "url":  "{{baseUrl}}/empleados"
+                                 },
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"HTTP 401\", function () {     pm.response.to.have.status(401); });"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "name":  "10 GET con API Key incorrecta",
+                     "request":  {
+                                     "method":  "GET",
+                                     "header":  [
+                                                    {
+                                                        "key":  "Accept",
+                                                        "type":  "text",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "X-API-KEY",
+                                                        "type":  "text",
+                                                        "value":  "{{apiKey}}__incorrecta__"
+                                                    }
+                                                ],
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              },
+                                     "url":  "{{baseUrl}}/empleados"
+                                 },
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"HTTP 401\", function () {     pm.response.to.have.status(401); });"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 }
+             ]
+}
